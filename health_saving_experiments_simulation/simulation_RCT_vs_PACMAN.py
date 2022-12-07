@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-data = pd.read_csv('HARP_ROSCA_final.csv')
+data = pd.read_csv('health_saving_experiments_simulation\HARP_ROSCA_data.csv')
 
 """
 the 4 treatments are:
@@ -146,7 +146,7 @@ def probability_eps_optimal(alpha,
     for treatment in list_treatments:
         # sample 1000 thetas from the beta distribution
         thetas[treatment] = np.random.beta(
-            alpha[treatment], beta[treatment], 1000)
+            alpha[treatment], beta[treatment], 10000)
 
     # calculate the probability of being an eps-optimal treatment,
     # that is, what is the probability that theta is the highest among all thetas or epsilon close to the highest
