@@ -1,0 +1,21 @@
+todo: 
+testing
+add sree and creeate 2 branches and a way to have both read code before pushing (try with your LSE user)
+
+theory:
+Maybe learning bayesian? 
+
+
+advice for empirical RCT researchers: 
+https://www.povertyactionlab.org/person/glennerster
+http://runningres.com/
+
+
+Coding: 
+learn branching https://learngitbranching.js.org/
+testing 
+
+testing git. Making a change commit i do like 
+now this  change i do not like 
+what about multiple changes i do not like 
+now another change I do like 
