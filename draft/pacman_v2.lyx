@@ -500,6 +500,19 @@ best policy
 
  at any given stage in the experiment.
  
+\begin_inset Note Note
+status collapsed
+
+\begin_layout Plain Layout
+some discussion of beta prior is conjugate for binomial distributions and
+ so the posterior distributions on the probability of response are also
+ beta distributions.
+ 
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -1072,6 +1085,12 @@ Intuitively, what we are doing with
 
 \series bold
 Decision Rule Lemma
+\end_layout
+
+\begin_layout Lemma
+
+\series bold
+TODO: insert explicit formulation of decision rule
 \end_layout
 
 \begin_layout Standard
