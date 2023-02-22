@@ -466,7 +466,8 @@ best policy
 .
  The experimenter's goal is to find that treatment, or a treatment almost
  as good, with high probability and with as few individuals as possible.
- To do so, the experimenter begin with priors such that 
+ To do so, we propose that the experimenter plausibly begin with priors
+ that 
 \begin_inset Formula $\theta^{d}\sim Beta(\alpha^{d},\beta^{d})$
 \end_inset
 
@@ -478,7 +479,7 @@ best policy
 \begin_inset Formula $\{\beta^{d}\}_{d\in K}$
 \end_inset
 
- are unknown aggregate parameter vectors (e.g.
+ are aggregate parameter vectors set by the experimenter (e.g.
  could simply assume a uniform prior).
  After treating cluster 
 \begin_inset Formula $t$
@@ -501,12 +502,12 @@ best policy
  at any given stage in the experiment.
  
 \begin_inset Note Note
-status open
+status collapsed
 
 \begin_layout Plain Layout
-some discussion of beta prior is conjugate for binomial distributions, the
- posterior distributions on the probability of re- sponse are also beta
- distributions.
+some discussion of beta prior is conjugate for binomial distributions and
+ so the posterior distributions on the probability of response are also
+ beta distributions.
  
 \end_layout
 
