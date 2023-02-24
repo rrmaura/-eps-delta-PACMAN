@@ -292,7 +292,7 @@ literal "false"
 \begin_inset Formula $i$
 \end_inset
 
- from village 
+ from cluster 
 \begin_inset Formula $t$
 \end_inset
 
@@ -502,7 +502,7 @@ best policy
  at any given stage in the experiment.
  
 \begin_inset Note Note
-status collapsed
+status open
 
 \begin_layout Plain Layout
 some discussion of beta prior is conjugate for binomial distributions and
@@ -789,7 +789,7 @@ best policy
  probability with as little resources (individuals) as possible.
  
 \begin_inset Note Note
-status open
+status collapsed
 
 \begin_layout Plain Layout
 Is this truly well defined? I don't think so.
@@ -900,7 +900,7 @@ Also, while for the MED algorithm,
 
 \begin_layout Standard
 \begin_inset Note Note
-status collapsed
+status open
 
 \begin_layout Plain Layout
 The intuition of the algorithm is fairly simple: imagine you have 
@@ -1032,7 +1032,19 @@ Given a treatment
 \begin_inset Formula $r_{S}^{t}:=\{r_{t}^{d}\}_{d\in S}$
 \end_inset
 
-), we define the set of preferable treatments as: 
+), we define the set of 
+\begin_inset Quotes eld
+\end_inset
+
+treatments preferable to 
+\begin_inset Formula $d$
+\end_inset
+
+
+\begin_inset Quotes erd
+\end_inset
+
+ as: 
 \end_layout
 
 \begin_layout Standard
@@ -1096,7 +1108,7 @@ TODO: insert explicit formulation of decision rule
 
 \begin_layout Standard
 \begin_inset Note Note
-status collapsed
+status open
 
 \begin_layout Subsection
 Pseudocode
@@ -1144,7 +1156,7 @@ Assume you have 2 sequences
 \begin_inset Float algorithm
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \begin_inset Caption Standard
@@ -1370,6 +1382,76 @@ Pr(\max_{j\in S_{t}}\theta^{j}\leq\max_{i\in S_{t+1}}\theta^{i}+\epsilon_{l}|r_{
 
 \end_layout
 
+\begin_layout Lemma
+(here add proof of the lemma)
+\end_layout
+
+\begin_layout Plain Layout
+Now that we have a proof for the Lemma, the Theorem will be proved by induction.
+ We will show that 
+\begin_inset Formula $Pr(\theta^{d^{1}}-\epsilon<\theta^{\hat{d}})>1-\sum_{i=1}^{T}\delta_{l},\forall T$
+\end_inset
+
+.
+ Assume T=2.
+ Define the following events: 
+\begin_inset Formula 
+\[
+E=\{\theta^{d^{1}}-\epsilon<\theta^{\hat{d}}\}
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+E_{1}=\{\max_{j\in S_{0}}\theta^{j}\leq\max_{i\in S_{1}}\theta^{i}+\epsilon_{1}\}
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+E_{2}=\{\max_{j\in S_{1}}\theta^{j}\leq\max_{i\in S_{2}}\theta^{i}+\epsilon_{2}\}
+\]
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+Then, it follows that 
+\begin_inset Formula $E\subseteq E_{1}\cap E_{2}$
+\end_inset
+
+.
+ To see this, check that 
+\begin_inset Formula $\theta^{d^{1}}=\max_{j\in S_{0}}\theta^{j}\leq\max_{i\in S_{1}}\theta^{i}+\epsilon_{1}\leq\max_{i\in S_{2}}\theta^{i}+\epsilon_{2}+\epsilon_{1}=\theta^{\hat{d}}+\sum\epsilon_{l}$
+\end_inset
+
+.
+ Thus,
+\begin_inset Formula 
+\begin{align*}
+Pr(\theta^{d^{1}}-\epsilon & <\theta^{\hat{d}})=Pr(E)\\
+\geq & Pr(E_{1}\cap E_{2})\\
+= & 1-Pr\left((E_{1}\cap E_{2})^{c}\right)\\
+= & 1-Pr\left(E_{1}^{c}\cup E_{2}^{c}\right)\\
+= & 1-Pr\left(E_{1}^{c}\right)-Pr\left(E_{2}^{c}\right)+Pr\left((E_{1}\cap E_{2})^{c}\right)\\
+\geq & 1-Pr\left(E_{1}^{c}\right)-Pr\left(E_{2}^{c}\right)\\
+= & 1-\sum_{s_{1}=1}^{n_{1}}Pr\left(E_{1}^{c}|r,m\right)Pr(r_{1},m_{1})-\sum_{n_{2}=1}^{\tilde{n_{2}}}\sum_{s_{2}=1}^{n_{2}}Pr\left(E_{2}^{c}|r,m\right)Pr(r_{2},m_{2})\\
+= & 1-\sum_{r_{1},m_{1}}Pr\left(E_{1}^{c}|r_{1},m_{1}\right)Pr(r_{1},m_{1})-\sum_{r_{2},m_{2}}Pr\left(E_{2}^{c}|r_{2},m_{2}\right)Pr(r_{2},m_{2})\\
+\geq & 1-\sum_{r_{1},m_{1}}\delta_{1}Pr(r_{1},m_{1})-\sum_{r_{2},m_{2}}\delta_{2}Pr(r_{2},m_{2})\\
+= & 1-\delta_{1}-\delta_{2}
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Plain Layout
 .
 \begin_inset CommandInset bibtex
@@ -1389,6 +1471,91 @@ Appendix
 
 \begin_layout Section*
 On Type 1 and Type 2 errors
+\end_layout
+
+\begin_layout Plain Layout
+When a researcher does a hypothesis test, the probabilities of type 1 and
+ type 2 errors are the following: 
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Formula 
+\[
+\text{Type 1 \ensuremath{\alpha=Pr(\text{reject null | }H_{0}}true })
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\text{Type 2 \ensuremath{\beta=Pr(\text{fail to reject | }H_{a}}true })
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+Where 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ is defined as the significance, and (1-
+\begin_inset Formula $\beta$
+\end_inset
+
+) is defined as the power.
+ If the particular test is done in the context of an RCT and the null hypothesis
+ is 
+\begin_inset Formula $H_{0}:ATE=0$
+\end_inset
+
+ .
+ Here, the events that we might care about are slightly different, as we
+ are considering multiple treatments and not only one.
+ Yet, under the case that one of the treatments 
+\begin_inset Formula $d\in\{1,\dots,k\}$
+\end_inset
+
+ is actually a control group, i.e.
+ no treatment, we will consider some possible analogous probabilities: 
+\end_layout
+
+\begin_layout Plain Layout
+(WLOG 
+\begin_inset Formula $d=0$
+\end_inset
+
+ is the control group )
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\alpha=Pr(\theta^{\hat{d}}\neq\theta^{control}|\theta^{j}<\theta^{control}\forall j)
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\beta=Pr(\theta^{\hat{d}}=\theta^{control}|\theta^{j}>\theta^{control}\forall j)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+Alternatively, there are other probabilities that the researcher might care
+ about.
+ This ones are being discussed in the appendix.
+ 
 \end_layout
 
 \begin_layout Section*
