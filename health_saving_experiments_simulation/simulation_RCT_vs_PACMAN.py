@@ -1,8 +1,18 @@
+# TODO: comments about table 3
+# TODO: this gives epsilon, n and returns delta.
+# Repeat program the other way around.
+
 import pandas as pd
 import numpy as np
 import random
-
-data = pd.read_csv('/Users/sreeayyar/Dropbox/GitHub/PACMAN/health_saving_experiments_simulation/HARP_ROSCA_data.csv')
+from utils import probability_eps_optimal
+# data = pd.read_csv('/Users/sreeayyar/Dropbox/GitHub/PACMAN/health_saving_experiments_simulation/HARP_ROSCA_data.csv')
+data = pd.read_csv('D:\GitHub Repositories\PACMAN\health_saving_experiments_simulation\HARP_ROSCA_data.csv')
+data = data[data["has_followup2"] == 1]
+# drop the users that multitreated
+# TODO Do we really want to throw away all the data from these users? 
+# - I think so; it is just over 10% of the sample.
+# data = data[data['multitreat'] == 0]
 
 """
 the 4 treatments are:
@@ -21,74 +31,62 @@ the outcome is:
 # how many people did multitreat?
 data['multitreat'].value_counts()
 
-# drop the users that multitreated
-# TODO Do we really want to throw away all the data from these users? - I think so; it is just over 10% of the sample..
-data = data[data['multitreat'] == 0]
-
-# how many people in each treatment?
-print(data['encouragement'].value_counts())
-print(data['safe_box'].value_counts())
-print(data['locked_box'].value_counts())
-print(data['health_pot'].value_counts())
-print(data['health_savings'].value_counts())
+treatments_and_control = ['health_savings', 
+                'health_pot',
+                'locked_box',
+                'safe_box',
+                'encouragement']
 
 
-# count how many people got a positive outcome in the the different treatments
-print('\n')
-print('health_savings', data[data['health_savings'] == 1]['fol2_illness_untreated_3mo'].sum())
-print('health_pot', data[data['health_pot'] == 1]['fol2_illness_untreated_3mo'].sum())
-print('locked_box', data[data['locked_box'] == 1]['fol2_illness_untreated_3mo'].sum())
-print('safe_box', data[data['safe_box'] == 1]['fol2_illness_untreated_3mo'].sum())
 
-#count people treated with each treatment
-print('\n')
-print('health_savings', data[data['health_savings'] == 1].shape[0])
-print('health_pot', data[data['health_pot'] == 1].shape[0])
-print('locked_box', data[data['locked_box'] == 1].shape[0])
-print('safe_box', data[data['safe_box'] == 1].shape[0])
-print('\n')
+print("\n\nNumber of people allocated in each treatment?\n")
+for t in treatments_and_control:
+    print(t, data[data[t] == 1].shape[0])
 
-# print the ratio of people that got a positive outcome in the different treatments
-print('\n')
-print('health_savings', data[data['health_savings'] == 1]['fol2_illness_untreated_3mo'].sum()/data[data['health_savings'] == 1].shape[0])
-print('health_pot', data[data['health_pot'] == 1]['fol2_illness_untreated_3mo'].sum()/data[data['health_pot'] == 1].shape[0])
-print('locked_box', data[data['locked_box'] == 1]['fol2_illness_untreated_3mo'].sum()/data[data['locked_box'] == 1].shape[0])
-print('safe_box', data[data['safe_box'] == 1]['fol2_illness_untreated_3mo'].sum()/data[data['safe_box'] == 1].shape[0])
+print("\n\nNumber of people with positive outcomes in each treatment group\n")
+for t in treatments_and_control:
+    print(t, data[data[t] == 1]['fol2_illness_untreated_3mo'].sum())
+
+print("\n\nRatio of positive outcomes to treated\n")
+for t in treatments_and_control:
+    print(t, round(data[data[t] == 1]['fol2_illness_untreated_3mo'].sum() / data[data[t] == 1].shape[0], 2))
 
 """
-health_savings 0.18032786885245902
-health_pot 0.2827586206896552           "health pot" is the best treatment
-locked_box 0.2564102564102564
-safe_box 0.18803418803418803
+health_savings 0.180
+health_pot 0.282        "health pot" is the best treatment
+locked_box 0.256
+safe_box 0.188
 """
-global best_treatment
-best_treatment = 'health_pot'
 
-# calculate the ATE of the 4 treatments:
+# Calculate the ATE of the 4 treatments:
 avg_Y_control = data['fol2_illness_untreated_3mo'][data['encouragement'] == 1].mean()
-avg_Y_safe_box = data['fol2_illness_untreated_3mo'][data['safe_box'] == 1].mean()
-avg_Y_locked_box = data['fol2_illness_untreated_3mo'][data['locked_box'] == 1].mean()
-avg_Y_health_pot = data['fol2_illness_untreated_3mo'][data['health_pot'] == 1].mean()
-avg_Y_health_savings = data['fol2_illness_untreated_3mo'][data['health_savings'] == 1].mean()
+ATEs = {}
+print("\n\nATEs\n")
+for t in treatments_and_control[:-1]:
+    avg_Y_treatment = data['fol2_illness_untreated_3mo'][data[t] == 1].mean()
+    ATE = avg_Y_treatment - avg_Y_control
+    ATEs[t] = ATE
+    print(f'ATE_{t}: {round(ATE, 2)}')
 
-ATE_safe_box = avg_Y_safe_box - avg_Y_control
-ATE_locked_box = avg_Y_locked_box - avg_Y_control
-ATE_health_pot = avg_Y_health_pot - avg_Y_control
-ATE_health_savings = avg_Y_health_savings - avg_Y_control
-
-print('ATE_safe_box: ', ATE_safe_box)
-print('ATE_locked_box: ', ATE_locked_box)
-print('ATE_health_pot: ', ATE_health_pot)
-print('ATE_health_savings: ', ATE_health_savings)
+global best_treatment
+best_treatment = max(ATEs, key=ATEs.get)
+print(f"\nBest Treatment: {best_treatment}")
 
 # the best one is health_savings
-# TODO: also, the only one in the paper significant at 5% - 
-    # no. which table are you looking at? imo reference should be Table 3, columns (3) and (4)
-    # should we be replicating their results for credibility? what about CIA-based arguments?
+# TODO: R: also, the only one in the paper significant at 5% - 
+    # S: no. which table are you looking at? 
+    # imo reference should be Table 3, columns (3) and (4)
+    # should we be replicating their results for credibility? 
+    # what about CIA-based arguments? (Y(1),Y(0) ind T | X)
+    # R: Sorry, my bad, I agree with you that it is weird that in their results 
+    # they got health savings while we got health pot.
+    # I suspect that it is because they control for a lot of stuff that we don't.
+    # also, they do not throw away the people that multitreated.
+    # and they focus on people with follow up
 
 epsilon = 0
 n_people = 125   # simulate 2 RCTs with n_people each (+ control group)
-n_simulations = 1000
+n_simulations = 200
 success_count = 0
 randomtreat = int(1) # set to 1 if you want horserace to be against random two RCT treatments
 
@@ -125,56 +123,15 @@ print('success rate on RCT: ', success_count/n_simulations)
 print('total people used: ',  n_people*2,  "for treatment and ", n_people, "for control " ) # 3 because we have 2 treatments and the control
 print('\n')
 
-# This function takes the alphas and betas of M  beta distributions and epsilon.
-# returns the probabilities
 
-def probability_eps_optimal(alpha,
-                            beta,
-                            epsilon,
-                            list_treatments=["safe_box",
-                                             "locked_box",
-                                             "health_pot",
-                                             "health_savings"]):
-    """
-    calculate the probability of being an eps-optimal treatment
-    for each of the M beta distributions
-
-    :param alpha: list of alphas of the beta distributions B(alpha, beta)
-    :param beta: list of betas of the beta distributions B(alpha, beta)
-    :param epsilon: the epsilon value
-    :param list_treatments: list of the treatments
-    :return: list of probabilities of being an eps-optimal treatment
-    """
-    # we will do this by montecarlo simulation. Sample 1000 times from each beta distribution
-    # and calculate the probability of being an eps-optimal treatment
-
-    # sample 1000 times from each beta distribution
-    # create a pandas dataframe of the samples
-    thetas = pd.DataFrame()
-    for treatment in list_treatments:
-        # sample 10000 thetas from the beta distribution
-        thetas[treatment] = np.random.beta(
-            alpha[treatment], beta[treatment], 10000) 
-
-    # calculate the probability of being an eps-optimal treatment,
-    # that is, what is the probability that theta is the highest among all thetas, or epsilon close to the highest
-
-    # for each treatment, calculate the probability of being an eps-optimal treatment
-    prob_eps_optimal = {}
-    for treatment in list_treatments:
-        # calculate the probability of being an eps-optimal treatment
-        prob_eps_optimal[treatment] = (
-            thetas[treatment] >= thetas.max(axis=1) - epsilon).mean() # TODO this does not seem to do what you think it does!!
-    return prob_eps_optimal
-
-n_simulations = 1000 
+n_simulations = 2000 
 success_count = 0
 for sim in range(n_simulations):
 
     # now try with multiarmed bandits:
     # The prior is a Uniform, i.e. a beta(1,1) distribution
     # The posterior is a beta distribution, and it is updated with the data
-    # The posterior beta(alpha, beta) is explicitly determined by alpha and beta, which are
+    # The posterior beta(alpha, beta) is determined by alpha and beta, which are
     # the number of successes plus 1 and failures plus 1, respectively.
     n_people_multiarmed = int(50)  # TODO get this number from the paper
     dict_alpha = {'safe_box': 1, 'locked_box': 1,
@@ -201,13 +158,12 @@ for sim in range(n_simulations):
             subsample_data['fol2_illness_untreated_3mo'].sum()
 
     # round two:
-    # TODO: am I ignoring the people already sampled? no, I'm not. I think that you are taking them into account by using the posterior
-
     # choose the 2 treatments with the highest probability of being epsilon-optimal:
     # get the probabilities of being an eps-optimal treatment
-    # TODO is this a good rule? should I get rid off half the treatments? - median elimination!
-    prob_eps_optimal = probability_eps_optimal(dict_alpha, dict_beta, epsilon)
-    # print(prob_eps_optimal)
+    prob_eps_optimal = probability_eps_optimal(dict_alpha, 
+                                                dict_beta, 
+                                                epsilon, 
+                                                treatments_and_control[:-1])
 
     # get the 2 treatments with the highest probability of being an eps-optimal treatment
     T1, T2 = sorted(prob_eps_optimal,

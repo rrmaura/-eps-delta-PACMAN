@@ -23,6 +23,9 @@ class Test_probability_eps_optimal(unittest.TestCase):
                             LIST_TREATMENTS)
         for treatment in LIST_TREATMENTS:    
             assert np.isclose(pr[treatment], 0.25, rtol=1e-02)
+
+        
+    
     
 
 if __name__ == '__main__':
