@@ -84,73 +84,92 @@ def scale_approx(alpha, beta, epsilon):
 #------------------------------------------------------------------------------
 
 random.seed(1)
-sims = 1000
-n_treatments = 4
+sims = 5000
 
-# uniform prior
-alphas = np.ones(n_treatments)
-betas = np.ones(n_treatments)
+# Define the ranges for n_sample, epsilon, and n_treatments
+n_sample_range = [100, 200, 500, 1000]
+epsilon_range = [0.025, 0.05, 0.1, 0.15]
+n_treatments_range = [4, 6, 8, 10]
 
-epsilon = 0.025
-
-# let us fix true probabilities
-theta = np.random.uniform(0,1,n_treatments)
-print("Best treatment is " + str(np.argmax(theta)))
-
-sample = 200 # for each round of experiment
-
+array_shape = (len(n_sample_range), len(epsilon_range), len(n_treatments_range))
+counter_ni = np.zeros(array_shape)
+counter_na = np.zeros(array_shape)
+counter_sa = np.zeros(array_shape)
 
 # numerical integration decision rule
-for i in trange(sims): 
-    remaining_treatments = np.arange(n_treatments)
-    j = 1
-    if j < 3:      
-        outcome_treatment = np.random.binomial(sample, theta[remaining_treatments])
-        alphas[remaining_treatments] = alphas[remaining_treatments] + outcome_treatment
-        betas[remaining_treatments] = betas[remaining_treatments] + sample - outcome_treatment
-    
-        bool_survived_treatments = numerical_integration(alphas[remaining_treatments], 
-                                                betas[remaining_treatments], 
-                                                epsilon, 
-                                                n_samples=10000)
-        
-        remaining_treatments = remaining_treatments[bool_survived_treatments == 1]
-        j = j + 1
-print(remaining_treatments)
+for sample in n_sample_range:
+    for epsilon in epsilon_range:
+        for n_treatments in n_treatments_range:
+            print(f"sample_size: {sample}, epsilon: {epsilon}, n_treatments: {n_treatments}")
+            
+            # let us fix true probabilities
+            theta = np.random.uniform(0,1,n_treatments)
+            best_theta = np.argmax(theta)
+            print("Best treatment is " + str(best_theta))
+            
+            # uniform prior
+            alphas = np.ones(n_treatments)
+            betas = np.ones(n_treatments)
 
-
-# normal approx decision rule
-for i in trange(sims): 
-    remaining_treatments = np.arange(n_treatments)
-    j = 1
-    if j < 3:      
-        outcome_treatment = np.random.binomial(sample, theta[remaining_treatments])
-        alphas[remaining_treatments] = alphas[remaining_treatments] + outcome_treatment
-        betas[remaining_treatments] = betas[remaining_treatments] + sample - outcome_treatment
-    
-        bool_survived_treatments = normal_approx(alphas[remaining_treatments], 
-                                                betas[remaining_treatments], 
-                                                epsilon)
-        
-        remaining_treatments = remaining_treatments[bool_survived_treatments == 1]
-        j = j + 1
-print(remaining_treatments)
-
-# scale approx decision rule
-for i in trange(sims): 
-    remaining_treatments = np.arange(n_treatments)
-    j = 1
-    if j < 3:      
-        outcome_treatment = np.random.binomial(sample, theta[remaining_treatments])
-        alphas[remaining_treatments] = alphas[remaining_treatments] + outcome_treatment
-        betas[remaining_treatments] = betas[remaining_treatments] + sample - outcome_treatment
-    
-        bool_survived_treatments = scale_approx(alphas[remaining_treatments], 
-                                                betas[remaining_treatments], 
-                                                epsilon)
-        
-        remaining_treatments = remaining_treatments[bool_survived_treatments == 1]
-        j = j + 1
-print(remaining_treatments)
-        
-
+            for i in trange(sims): 
+                remaining_treatments = np.arange(n_treatments)
+                j = 1
+                if j < 3:      
+                    outcome_treatment = np.random.binomial(sample, theta[remaining_treatments])
+                    alphas[remaining_treatments] = alphas[remaining_treatments] + outcome_treatment
+                    betas[remaining_treatments] = betas[remaining_treatments] + sample - outcome_treatment
+                
+                    bool_survived_treatments = numerical_integration(alphas[remaining_treatments], 
+                                                            betas[remaining_treatments], 
+                                                            epsilon, 
+                                                            n_samples=10000)
+                    
+                    remaining_treatments = remaining_treatments[bool_survived_treatments == 1]
+                    j = j + 1
+                if np.any(remaining_treatments == best_theta)==1:
+                    pos1 = n_sample_range.index(sample)
+                    pos2 = epsilon_range.index(epsilon)
+                    pos3 = n_treatments_range.index(n_treatments)
+                    counter_ni[pos1,pos2,pos3] = counter_ni[pos1,pos2,pos3] + 1
+            
+            # normal approx decision rule
+            for i in trange(sims): 
+                remaining_treatments = np.arange(n_treatments)
+                j = 1
+                if j < 3:      
+                    outcome_treatment = np.random.binomial(sample, theta[remaining_treatments])
+                    alphas[remaining_treatments] = alphas[remaining_treatments] + outcome_treatment
+                    betas[remaining_treatments] = betas[remaining_treatments] + sample - outcome_treatment
+                
+                    bool_survived_treatments = normal_approx(alphas[remaining_treatments], 
+                                                            betas[remaining_treatments], 
+                                                            epsilon)
+                    
+                    remaining_treatments = remaining_treatments[bool_survived_treatments == 1]
+                if np.any(remaining_treatments == best_theta)==1:
+                    pos1 = n_sample_range.index(sample)
+                    pos2 = epsilon_range.index(epsilon)
+                    pos3 = n_treatments_range.index(n_treatments)
+                    counter_na[pos1,pos2,pos3] = counter_na[pos1,pos2,pos3] + 1
+                                
+            # scale approx decision rule
+            for i in trange(sims): 
+                remaining_treatments = np.arange(n_treatments)
+                j = 1
+                if j < 3:      
+                    outcome_treatment = np.random.binomial(sample, theta[remaining_treatments])
+                    alphas[remaining_treatments] = alphas[remaining_treatments] + outcome_treatment
+                    betas[remaining_treatments] = betas[remaining_treatments] + sample - outcome_treatment
+                
+                    bool_survived_treatments = scale_approx(alphas[remaining_treatments], 
+                                                            betas[remaining_treatments], 
+                                                            epsilon)
+                    
+                    remaining_treatments = remaining_treatments[bool_survived_treatments == 1]
+                if np.any(remaining_treatments == best_theta)==1:
+                    pos1 = n_sample_range.index(sample)
+                    pos2 = epsilon_range.index(epsilon)
+                    pos3 = n_treatments_range.index(n_treatments)
+                    counter_sa[pos1,pos2,pos3] = counter_sa[pos1,pos2,pos3] + 1
+                                        
+            
