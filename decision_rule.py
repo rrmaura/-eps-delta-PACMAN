@@ -95,11 +95,11 @@ def exact_sum(alpha, beta, epsilon):
     for i in range(n_treatments):
         for j in range(n_treatments):
             total = 0
-            for k in range(alpha[i]):
-                total += math.exp(math.lbeta(alpha[j]+k,beta[i]+beta[j])
-                        - math.log(beta[i]+k) - math.lbeta(1+k, beta[i]) - math.lbeta(alpha[j], beta[j]))
+            for k in range(round(alpha[i])):
+                total += math.exp(special.betaln(alpha[j]+k,beta[i]+beta[j])
+                        - math.log(beta[i]+k) - special.betaln(1+k, beta[i]) - special.betaln(alpha[j], beta[j]))
             prob_thetas[i,j] = total
-
+            
     pairwise_DR = np.zeros((n_treatments,n_treatments))
     for i in range(n_treatments):
         for j in range(n_treatments):
@@ -118,7 +118,7 @@ def exact_sum(alpha, beta, epsilon):
 #------------------------------------------------------------------------------
 
 random.seed(1)
-sims = 5000
+sims = 1000
 
 # Define the ranges for n_sample, epsilon, and n_treatments
 n_sample_range = [100, 200, 500, 1000]
@@ -244,7 +244,6 @@ for sample in n_sample_range:
                     pos2 = epsilon_range.index(epsilon)
                     pos3 = n_treatments_range.index(n_treatments)
                     counter_sa[pos1,pos2,pos3] = counter_sa[pos1,pos2,pos3] + 1
-
 
 # exact sum decision rule
 for sample in n_sample_range:
